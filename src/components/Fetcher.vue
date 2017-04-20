@@ -1,25 +1,30 @@
 <template>
   <div class="fetch">
-    <form @submit.prevent="submit">
-      <input v-model="inputValue" placeholder="Enter a github username...">
-      <button>Go!</button>
-    </form>
-    <h1 v-text="username"></h1>
-    <img v-if="avatar" :src="avatar" class="avatar">
-    <h2 v-if="faveLang">😍 Favourite Language: {{ faveLang }}</h2>
-    <h3 v-if="followers.length > 0">Followers ({{ followers.length }}):</h3>
-    <ul v-if="followers.length > 0">
-      <li v-for="follower in followers">
-        {{ follower }}
-      </li>
-    </ul>
+    <user-form
+      v-model="inputValue"
+      :input-value="inputValue"
+      @go="submit"
+    ></user-form>
+    <stats
+      :username="username"
+      :avatar="avatar"
+      :fave-lang="faveLang"
+      :followers="followers"
+    ></stats>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import api from '../../api'
+import UserForm from './user-form'
+import Stats from './stats'
 
 export default {
+  name: 'fetch',
+  components: {
+    UserForm,
+    Stats
+  },
   data () {
     return {
       inputValue: '',
@@ -27,18 +32,17 @@ export default {
       avatar: '',
       followers: [],
       faveLang: '',
-      errorMsg: '',
-      urlBase: 'https://api.github.com/users'
+      errorMsg: ''
     }
   },
   methods: {
     submit () {
-      const api = `${this.urlBase}/${this.inputValue}`
-
-      this.fetchUser(api)
+      if (this.inputValue) {
+        this.fetchUser(this.inputValue)
+      }
     },
-    fetchUser (api) {
-      axios.get(api)
+    fetchUser (val) {
+      api.fetchUser(val)
       .then(res => {
         const { data } = res
 
@@ -46,39 +50,30 @@ export default {
         this.username = data.login
         this.avatar = data.avatar_url
 
-        this.fetchFollowers()
-        this.fetchFaveLang()
+        api.fetchFollowers(this.username).then(followers => {
+          this.followers = followers
+        })
+
+        api.fetchLanguages(this.username).then(languages => {
+          var map = languages.reduce((prev, next) => {
+            if (!prev[next]) {
+              prev[next] = 0
+            }
+
+            prev[next] += 1
+
+            return prev
+          }, {})
+
+          var faveLang = Object.keys(map).reduce((prev, next) => {
+            return map[prev] > map[next] ? prev : next
+          })
+
+          this.faveLang = faveLang
+        })
       })
       .catch(err => {
         console.warn('ERROR:', err)
-      })
-    },
-    fetchFollowers () {
-      axios.get(`${this.urlBase}/${this.username}/followers`)
-      .then(res => {
-        this.followers = res.data.map(follower => follower.login)
-      })
-    },
-    fetchFaveLang () {
-      axios.get(`${this.urlBase}/${this.username}/repos`)
-      .then(res => {
-        const langs = res.data.map(repo => repo.language)
-
-        var map = langs.reduce((prev, next) => {
-          if (!prev[next]) {
-            prev[next] = 0
-          }
-
-          prev[next] += 1
-
-          return prev
-        }, {})
-
-        var faveLang = Object.keys(map).reduce((prev, next) => {
-          return map[prev] > map[next] ? prev : next
-        })
-
-        this.faveLang = faveLang
       })
     }
   }
@@ -87,26 +82,5 @@ export default {
 
 <style lang="stylus">
 body
-  background-color goldenrod
-
-.fetch
-  dispaly flex
-  align-items center
-  flex-flow column
-  font-family Comic Sans MS
-
-  input
-    width 320px
-
-  input,
-  button
-    font-size 25px
-
-  h1
-    font-size 44px
-
-  .avatar
-    height 200px
-    width 200px
-    border-radius 10%
+  background-color #fff
 </style>
