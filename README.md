@@ -1,6 +1,7 @@
-# notes
+# an github user fetcher with axios and vue
 
-> A Vue.js project
+> course course from https://egghead.io/lessons/vue-make-a-request-to-an-api-with-axios-in-vue
+> from github: https://github.com/alanbuchanan/vue-axios-example
 
 ## Build Setup
 
@@ -26,8 +27,3 @@ npm run e2e
 # run all tests
 npm test
 ```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
-
-// course from https://egghead.io/lessons/vue-make-a-request-to-an-api-with-axios-in-vue
-// github: https://github.com/alanbuchanan/vue-axios-example
