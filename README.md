@@ -1,7 +1,10 @@
-# an github user fetcher with axios and vue
+# a simple github user fetcher with axios and vue
 
-> course course from https://egghead.io/lessons/vue-make-a-request-to-an-api-with-axios-in-vue
-> from github: https://github.com/alanbuchanan/vue-axios-example
+``` bash
+course: https://egghead.io/lessons/vue-make-a-request-to-an-api-with-axios-in-vue
+
+github repo: https://github.com/alanbuchanan/vue-axios-example
+```
 
 ## Build Setup
 
